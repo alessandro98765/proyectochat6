@@ -1,22 +1,23 @@
 {
   "name": "proyectochat6",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Chat en tiempo real con Express, Socket.IO y Turso",
+  "main": "server/index.js",
   "type": "module",
   "scripts": {
     "start": "node server/index.js",
-    "dev": "node --watch ./server/index.js",
+    "dev": "node --watch server/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["chat", "socket.io", "express", "turso", "nodejs"],
+  "author": "Alessandro",
   "license": "ISC",
   "dependencies": {
     "@libsql/client": "^0.15.15",
     "dotenv": "^17.2.3",
-    "express": "5.1.0",
-    "morgan": "1.10.1",
-    "socket.io": "4.8.1"
+    "express": "^5.1.0",
+    "morgan": "^1.10.1",
+    "socket.io": "^4.8.1"
   }
 }
+
