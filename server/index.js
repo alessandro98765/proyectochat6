@@ -54,20 +54,43 @@ io.on('connection', async (socket) => {
        io.emit('chat message', msg, result.lastInsertRowid.toString(), username)
     })
 
-    if(socket.recovered){
-      try {
-        const result = await db.execute({
-          sql: 'SELECT id, content, user FROM messages WHERE id > ?',
-          args:[socket.handshake.auth.serveroffset ?? 0]
-        })
+    io.on('connection', async (socket) => {
+  const username = socket.handshake.auth.username ?? 'anonymous'
+  console.log(`🟢 ${username} has connected`)
 
-        result.rows.forEach(row => {
-          socket.emit('chat message', row.content, row.id.toString(),row.user)
-        })
-    } catch(e) {
-      console.error(e)
+  // ✅ Enviar todos los mensajes guardados a este nuevo cliente
+  try {
+    const result = await db.execute({
+      sql: 'SELECT id, content, user FROM messages ORDER BY id ASC'
+    })
+
+    result.rows.forEach(row => {
+      socket.emit('chat message', row.content, row.id.toString(), row.user)
+    })
+  } catch (e) {
+    console.error('Error loading messages:', e)
+  }
+
+  socket.on('chat message', async (msg) => {
+    let result
+    try {
+      result = await db.execute({
+        sql: 'INSERT INTO messages (content, user) VALUES (:msg, :username)',
+        args: { msg, username }
+      })
+    } catch (e) {
+      console.error('Error saving message:', e)
+      return
     }
-    }
+
+    io.emit('chat message', msg, result.lastInsertRowid.toString(), username)
+  })
+
+  socket.on('disconnect', () => {
+    console.log(`🔴 ${username} has disconnected`)
+  })
+})
+
 })
 
 app.use(express.static('client'))
